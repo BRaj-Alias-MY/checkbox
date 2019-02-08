@@ -1,0 +1,132 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using WebApplication10.Models;
+using MySql.Data.MySqlClient;
+using System.Data;
+using MySql.Data;
+using Microsoft.AspNetCore.Http;
+
+namespace WebApplication10.Controllers
+{
+    public class HomeController : Controller
+    {
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        public IActionResult About()
+        {
+            ViewData["Message"] = "Your application description page.";
+
+            return View();
+        }
+
+        public IActionResult Contact()
+        {
+            ViewData["Message"] = "Your contact page.";
+
+            return View();
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+        [HttpGet]
+        [Route("/mydata")]
+        public IActionResult mydata()
+        {
+            DataTable dt = new DataTable();
+            MySqlConnection con = new MySqlConnection("server=localhost;port=3306;database=mydb22;user=root;password=");
+            con.Open();
+            MySqlDataAdapter da = new MySqlDataAdapter("select * from students", con);
+            da.Fill(dt);
+            return View(dt);
+        }
+        [HttpPost]
+        public IActionResult Index(FormCollection formCollection)
+        {
+            //string[] ids = formCollection["ID"].Split(new char[] { ',' });
+            //foreach (string id in ids)
+            //{
+            //}
+            return RedirectToAction("");
+        }
+    }
+}
+======================
+
+@using System.Data
+@model DataTable
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>mydata</title>
+	 <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>
+</head>
+<body>
+    <form method="POST" action="/Index">
+
+
+        <button type="submit" value="Delete" class="btn btn-sm btn-danger rounded-0" onclick="return confirm('Are you sure?')"><i class="fa fa-trash-o"></i> Delete</button>
+        <br /><br />
+        <table id="DataTable" style="width:100%;" class="table table-bordered">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="checkBoxAll" class="custom-checkbox" /></th>
+                    <th>Sno</th>
+                    <th>Name</th>
+                </tr>
+
+            </thead>
+            <tbody>
+
+                @foreach (DataRow row in Model.Rows)
+                {
+                    <tr>
+                        <td><input type="checkbox" name="ID" value="@row[0]" class="custom-checkbox chkCheckBoxId" /></td>
+                        <td>@row["sno"]</td>
+                        <td>@row["sname"]</td>
+                    </tr>
+
+                </tbody>
+                     }
+            </table>
+
+
+        </form>
+   
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#DataTable').DataTable();
+            $('#checkBoxAll').click(function () {
+                if ($(this).is(":checked")) {
+                    $(".chkCheckBoxId").prop("checked", true)
+                }
+                else {
+                    $(".chkCheckBoxId").prop("checked", false)
+                }
+            });
+        });
+    </script>
+</body>
+</html>
